@@ -6,16 +6,15 @@
 
 import networkx as nx
 import matplotlib.pyplot as plt
-import json
-from vk_friends_ip_dataset import VKFriendsIPDataset
+from vk_friends_ip_dataset import VKFriendsDataset
 
 def visualize_subgraphs_comparison():
     """Создание сравнительной визуализации порожденных подграфов"""
     
     # Создаем датасет
-    dataset = VKFriendsIPDataset(group_size=20)
-    dataset.create_members_dataset()
-    dataset.generate_friends_network()
+    dataset = VKFriendsDataset(json_file="databaseFriends.json")
+    dataset.load_dataset()
+    dataset.build_friends_network()
     
     # Создаем порожденные подграфы
     subgraphs = dataset.create_induced_subgraphs()
@@ -36,6 +35,7 @@ def visualize_subgraphs_comparison():
             node_size=node_sizes1, 
             node_color='lightcoral', 
             edge_color='gray', 
+            width=3.0,
             alpha=0.8,
             with_labels=False)
     
@@ -53,6 +53,7 @@ def visualize_subgraphs_comparison():
                 node_size=node_sizes2,
                 node_color='lightblue',
                 edge_color='gray',
+                width=3.0,
                 alpha=0.8,
                 with_labels=False)
         
@@ -67,9 +68,9 @@ def visualize_subgraphs_comparison():
     pos3 = nx.spring_layout(high_cent_subgraph, k=0.5, iterations=50)
     
     # Разделяем узлы на членов группы и внешних друзей
-    group_members = [m['id'] for m in dataset.members]
-    group_nodes_in_subgraph = [n for n in high_cent_subgraph.nodes() if n in group_members]
-    external_nodes_in_subgraph = [n for n in high_cent_subgraph.nodes() if n not in group_members]
+    group_member_ids = [str(m['id']) for m in dataset.members]
+    group_nodes_in_subgraph = [n for n in high_cent_subgraph.nodes() if n in group_member_ids]
+    external_nodes_in_subgraph = [n for n in high_cent_subgraph.nodes() if n not in group_member_ids]
     
     # Рисуем членов группы красным, внешних друзей синим
     if group_nodes_in_subgraph:
@@ -83,12 +84,14 @@ def visualize_subgraphs_comparison():
     if external_nodes_in_subgraph:
         nx.draw_networkx_nodes(high_cent_subgraph, pos3,
                              nodelist=external_nodes_in_subgraph,
-                             node_color='lightblue',
+                             node_color='steelblue',
                              node_size=100,
-                             alpha=0.6,
+                             alpha=0.8,
+                             edgecolors='darkblue',
+                             linewidths=1,
                              ax=ax3)
     
-    nx.draw_networkx_edges(high_cent_subgraph, pos3, ax=ax3, alpha=0.3, edge_color='gray')
+    nx.draw_networkx_edges(high_cent_subgraph, pos3, ax=ax3, alpha=0.6, width=3.0, edge_color='gray')
     
     ax3.set_title(f'Подграф высокой центральности\n{high_cent_subgraph.number_of_nodes()} узлов, {high_cent_subgraph.number_of_edges()} связей\nПлотность: {nx.density(high_cent_subgraph):.3f}')
     
@@ -100,7 +103,7 @@ def visualize_subgraphs_comparison():
         pos4 = nx.spring_layout(member_subgraph, k=1, iterations=50)
         
         # Центральный узел (член группы) выделяем
-        central_node = dataset.members[0]['id']
+        central_node = str(dataset.members[0]['id'])
         other_nodes = [n for n in member_subgraph.nodes() if n != central_node]
         
         # Рисуем центральный узел
@@ -113,14 +116,17 @@ def visualize_subgraphs_comparison():
         # Рисуем остальные узлы
         nx.draw_networkx_nodes(member_subgraph, pos4,
                              nodelist=other_nodes,
-                             node_color='lightgreen',
+                             node_color='steelblue',
                              node_size=200,
-                             alpha=0.7,
+                             alpha=0.8,
+                             edgecolors='darkblue',
+                             linewidths=1,
                              ax=ax4)
         
-        nx.draw_networkx_edges(member_subgraph, pos4, ax=ax4, alpha=0.5, edge_color='gray')
+        nx.draw_networkx_edges(member_subgraph, pos4, ax=ax4, alpha=0.7, width=3.0, edge_color='gray')
         
-        ax4.set_title(f'Подграф {dataset.members[0]["name"]}\nи его друзей\n{member_subgraph.number_of_nodes()} узлов, {member_subgraph.number_of_edges()} связей')
+        member_name = f"{dataset.members[0].get('first_name', '')} {dataset.members[0].get('last_name', '')}".strip()
+        ax4.set_title(f'Подграф {member_name}\nи его друзей\n{member_subgraph.number_of_nodes()} узлов, {member_subgraph.number_of_edges()} связей')
     
     # Убираем оси у всех подграфиков
     for ax in axes.flat:

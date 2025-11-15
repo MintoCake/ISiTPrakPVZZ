@@ -1,0 +1,67 @@
+[
+  {
+    "id": 410451634,
+    "first_name": "Глеб",
+    "last_name": "Зворыкин",
+    "city": "Москва",
+    "friends": [
+      { "id": 28185341, "first_name": "Настя", "last_name": "Рябова", "city": "Москва", "friends": [{"id":404052,"first_name":"Роман","last_name":"Леонов","city":"Москва"},{"id":1989700,"first_name":"Ольга","last_name":"Игнатьева","city":"Балашиха"},{"id":4172456,"first_name":"Елена","last_name":"Ширяева","city":"Москва"},{"id":8102901,"first_name":"Алексей","last_name":"Маркс","city":"Королев"},{"id":8676677,"first_name":"Катя","last_name":"Рябова","city":"Москва"}]},
+      { "id": 175526939, "first_name": "Елизавета", "last_name": "Максимова", "city": "Мытищи", "friends": [{"id":4873522,"first_name":"Денис","last_name":"Боков","city":"Мытищи"},{"id":10343941,"first_name":"Карина","last_name":"Пронина","city":"Москва"},{"id":12364878,"first_name":"Рустам","last_name":"Вагапов","city":"Мытищи"},{"id":13232091,"first_name":"Сергей","last_name":"Хомяков","city":"Балашиха"},{"id":15395920,"first_name":"Lina","last_name":"Saez","city":"Мытищи"}]},
+      { "id": 93288566, "first_name": "Максим", "last_name": "Чеснаков", "city": "Химки", "friends": [{"id":818482,"first_name":"Иван","last_name":"Романенко","city":"Химки"},{"id":1660585,"first_name":"Юлия","last_name":"Коновалова","city":"Люберцы"},{"id":2027105,"first_name":"Денис","last_name":"Горленко","city":"Химки"},{"id":2045889,"first_name":"Коля","last_name":"Зубец","city":"Одинцово"},{"id":2046223,"first_name":"Сергей","last_name":"Сорока","city":"Химки"}]},
+      { "id": 138073755, "first_name": "Лиза", "last_name": "Урванова", "city": "Королев", "friends": [{"id":1695736,"first_name":"Алексей","last_name":"Ефремов","city":"Фрязино"},{"id":18191016,"first_name":"Владислав","last_name":"Смоляков","city":"Королев"},{"id":30057542,"first_name":"Дарина","last_name":"Хохлова","city":"Королев"},{"id":32983718,"first_name":"Наташа","last_name":"Бабенко","city":"Щелково"},{"id":43742683,"first_name":"Светлана","last_name":"Леонтьева","city":"Королев"}]},
+      { "id": 158600407, "first_name": "Максим", "last_name": "Андриевский", "city": "Балашиха", "friends": [{"id":32503835,"first_name":"Алексей","last_name":"Голубчиков","city":"Балашиха"},{"id":58941143,"first_name":"Максим","last_name":"Навайбе","city":"Одинцово"},{"id":67480997,"first_name":"Анастасия","last_name":"Соловых","city":"Балашиха"},{"id":70813202,"first_name":"Андрей","last_name":"Зазаров","city":"Люберцы"},{"id":95349711,"first_name":"Виталий","last_name":"Серебрянкин","city":"Балашиха"}]}
+    ]
+  },
+  {
+    "id": 485335940,
+    "first_name": "Влад",
+    "last_name": "Журавлев",
+    "city": "Одинцово",
+    "friends": [
+      { "id": 20457184, "first_name": "Оксана", "last_name": "Кирпатенко", "city": "Фрязино", "friends": [{"id":38168,"first_name":"Ольга","last_name":"Киреева","city":"Фрязино"},{"id":49477,"first_name":"Иван","last_name":"Шишов","city":"Щелково"},{"id":91105,"first_name":"Антон","last_name":"Менязовут","city":"Фрязино"},{"id":126157,"first_name":"Екатерина","last_name":"Гончар","city":"Москва"},{"id":212137,"first_name":"Люба","last_name":"Алексеева","city":"Фрязино"}]},
+      { "id": 150673950, "first_name": "Ваня", "last_name": "Лукьянов", "city": "Люберцы", "friends": [{"id":15052477,"first_name":"Елена","last_name":"Рябцева","city":"Люберцы"},{"id":19160565,"first_name":"Елена","last_name":"Кулаева","city":"Химки"},{"id":55383072,"first_name":"Георгий","last_name":"Метревели","city":"Люберцы"},{"id":57790057,"first_name":"Тимур","last_name":"Сакалов","city":"Мытищи"},{"id":62273605,"first_name":"Маня","last_name":"Трунова","city":"Люберцы"}]},
+      { "id": 30575221, "first_name": "Руслан", "last_name": "Сафиуллин", "city": "Щелково", "friends":  [{"id":150551,"first_name":"Анна","last_name":"Тронина","city":"Щелково"},{"id":197758,"first_name":"Агнесса","last_name":"Бастрыкина","city":"Королев"},{"id":297660,"first_name":"Юлия","last_name":"Рожкова","city":"Щелково"},{"id":490496,"first_name":"Марина","last_name":"Данилова","city":"Балашиха"},{"id":824957,"first_name":"Сергей","last_name":"Матвеев","city":"Щелково"}]},
+      { "id": 43866987, "first_name": "Артём", "last_name": "Савостьянов", "city": "Химки", "friends":  [{"id":141626,"first_name":"Виктория","last_name":"Шишкина","city":"Химки"},{"id":331700,"first_name":"Серёга","last_name":"Гулько","city":"Одинцово"},{"id":776533,"first_name":"Ирина","last_name":"Пилипенко","city":"Химки"},{"id":798332,"first_name":"Владимир","last_name":"Германов","city":"Москва"},{"id":1197906,"first_name":"Дмитрий","last_name":"Родин","city":"Химки"}]},
+      { "id": 55177178, "first_name": "Александр", "last_name": "Игнатушко", "city": "Мытищи", "friends":  [{"id":1549204,"first_name":"Татьяна","last_name":"Кунцевич","city":"Мытищи"},{"id":11269606,"first_name":"Анна","last_name":"Пеккер","city":"Фрязино"},{"id":11594375,"first_name":"Дарья","last_name":"Домкина","city":"Мытищи"},{"id":14718528,"first_name":"Олеся","last_name":"Коробцова","city":"Люберцы"},{"id":22707056,"first_name":"Екатерина","last_name":"Голованова","city":"Мытищи"}]}
+    ]
+  },
+  {
+    "id": 224573416,
+    "first_name": "Алексей",
+    "last_name": "Васильков",
+    "city": "Фрязино",
+    "friends": [
+      { "id": 2451427, "first_name": "Светик", "last_name": "Василькова", "city": "Королев", "friends": [{"id":130553,"first_name":"Виталий","last_name":"Яворский","city":"Королев"},{"id":133482,"first_name":"Наталья","last_name":"Варшицкая","city":"Балашиха"},{"id":246198,"first_name":"Евгения","last_name":"Скопина","city":"Королев"},{"id":282165,"first_name":"Рита","last_name":"Зайцева","city":"Одинцово"},{"id":306373,"first_name":"Надя","last_name":"Даниялова","city":"Королев"}]},
+      { "id": 4542373, "first_name": "Евгений", "last_name": "Оковин", "city": "Москва", "friends": [{"id":72292,"first_name":"Александр","last_name":"Грановский","city":"Москва"},{"id":251715,"first_name":"Марина","last_name":"Самара","city":"Химки"},{"id":474528,"first_name":"Олег","last_name":"Виноградов","city":"Москва"},{"id":481907,"first_name":"Oleg","last_name":"Matveev","city":"Щелково"},{"id":864943,"first_name":"Анна","last_name":"Митрошкина","city":"Москва"}]},
+      { "id": 11326821, "first_name": "Марина", "last_name": "Василькова", "city": "Балашиха", "friends": [{"id":133482,"first_name":"Наталья","last_name":"Варшицкая","city":"Балашиха"},{"id":423379,"first_name":"Дарья","last_name":"Солдатенкова","city":"Мытищи"},{"id":774814,"first_name":"Мария","last_name":"Лукашова","city":"Балашиха"},{"id":827531,"first_name":"Ольга","last_name":"Дмитриева","city":"Фрязино"},{"id":841721,"first_name":"Екатерина","last_name":"Попова","city":"Балашиха"}]},
+      { "id": 19786200, "first_name": "Виталий", "last_name": "Крюк", "city": "Люберцы", "friends": [{"id":2154949,"first_name":"Кристина","last_name":"Артёмова","city":"Люберцы"},{"id":4542373,"first_name":"Евгений","last_name":"Оковин","city":"Москва"},{"id":5304078,"first_name":"Павел","last_name":"Сабуров","city":"Люберцы"},{"id":5773488,"first_name":"Andrey","last_name":"Shpack","city":"Королев"},{"id":6817513,"first_name":"Евгений","last_name":"Криничный","city":"Люберцы"}]},
+      { "id": 43364318, "first_name": "Пётр", "last_name": "Сидорин", "city": "Одинцово", "friends": [{"id":11934,"first_name":"Федор","last_name":"Попов","city":"Одинцово"},{"id":2156592,"first_name":"Екатерина","last_name":"Чиркова","city":"Щелково"},{"id":2311533,"first_name":"Артемий","last_name":"Фальшунов","city":"Одинцово"},{"id":2418030,"first_name":"Кирилл","last_name":"Ермоленко","city":"Химки"},{"id":2753035,"first_name":"Антон","last_name":"Иванов","city":"Одинцово"}]}
+    ]
+  },
+  {
+    "id": 265744005,
+    "first_name": "Алексей",
+    "last_name": "Прохоров",
+    "city": "Щелково",
+    "friends": [
+      { "id": 3029429, "first_name": "Олег", "last_name": "Прохоров", "city": "Мытищи", "friends": [{"id":883659,"first_name":"Серёжка","last_name":"Беляев","city":"Мытищи"},{"id":1131432,"first_name":"Денис","last_name":"Московский","city":"Фрязино"},{"id":1336273,"first_name":"Александр","last_name":"Кошелев","city":"Мытищи"},{"id":1716045,"first_name":"Татьяна","last_name":"Заблоцкая","city":"Одинцово"},{"id":3029433,"first_name":"Роман","last_name":"Сазонов","city":"Мытищи"}]},
+      { "id": 5704476, "first_name": "Александр", "last_name": "Корчемный", "city": "Химки", "friends": [{"id":122733,"first_name":"Арслан","last_name":"Манджиев","city":"Химки"},{"id":173667,"first_name":"Пётр","last_name":"Стерликов","city":"Люберцы"},{"id":705335,"first_name":"Никита","last_name":"Ушаков","city":"Химки"},{"id":708192,"first_name":"Александр","last_name":"Смирнов","city":"Балашиха"},{"id":793478,"first_name":"Наташа","last_name":"Тигина","city":"Химки"}]},
+      { "id": 7674081, "first_name": "Денис", "last_name": "Осин", "city": "Фрязино", "friends": [{"id":2200856,"first_name":"Олег","last_name":"Гришенин","city":"Фрязино"},{"id":2317983,"first_name":"Виталий","last_name":"Александрович","city":"Королев"},{"id":2327477,"first_name":"Артур","last_name":"Авалонский","city":"Фрязино"},{"id":2460292,"first_name":"Дмитрий","last_name":"Видюков","city":"Москва"},{"id":2841174,"first_name":"Руслан Анатольевич","last_name":"Гвоздев","city":"Фрязино"}]},
+      { "id": 32067591, "first_name": "Даниил", "last_name": "Лапшин", "city": "Королев", "friends": [{"id":31437,"first_name":"Павел","last_name":"Федоренко","city":"Королев"},{"id":38352,"first_name":"Сергей","last_name":"Злобин","city":"Щелково"},{"id":38852,"first_name":"Матвей","last_name":"Солодков","city":"Королев"},{"id":48915,"first_name":"Андрей","last_name":"Лебедев","city":"Балашиха"},{"id":55642,"first_name":"Петр","last_name":"Матюхин","city":"Королев"}]},
+      { "id": 43023207, "first_name": "Алексей", "last_name": "Космачев", "city": "Люберцы", "friends": [{"id":4266877,"first_name":"Александр","last_name":"Варламов","city":"Люберцы"},{"id":4887107,"first_name":"Федор","last_name":"Иванов","city":"Мытищи"},{"id":6098838,"first_name":"Валентин","last_name":"Киблык","city":"Люберцы"},{"id":8974467,"first_name":"Артём","last_name":"Перов","city":"Одинцово"},{"id":11932573,"first_name":"Артём","last_name":"Брицын","city":"Люберцы"}]}
+    ]
+  },
+  {
+    "id": "235618164",
+    "first_name": "Артём",
+    "last_name": "Потапов",
+    "city": "Балашиха",
+    "friends": [
+      {"id": 17411217,"first_name": "Артём","last_name": "Русинов", "city": "Одинцово", "friends":  [{"id":693767,"first_name":"Марина","last_name":"Рязанская","city":"Одинцово"},{"id":777065,"first_name":"Алессандро","last_name":"Жеганин","city":"Москва"},{"id":817893,"first_name":"Наталья","last_name":"Жукова","city":"Одинцово"},{"id":824535,"first_name":"Евгений","last_name":"Ванжула","city":"Химки"},{"id":835517,"first_name":"Николай","last_name":"Мельников","city":"Одинцово"}]},
+      {"id": 19658659,"first_name": "Дарья","last_name": "Дёгтева-Шершнева", "city": "Москва", "friends": [{"id":7202455,"first_name":"Ирина","last_name":"Вадимовна","city":"Москва"},{"id":9882445,"first_name":"Марьям","last_name":"Руя","city":"Щелково"},{"id":11699087,"first_name":"Катя","last_name":"Самохина","city":"Москва"},{"id":12848052,"first_name":"Евгения","last_name":"Беленко","city":"Люберцы"},{"id":14473477,"first_name":"Татьяна","last_name":"Дёгтева","city":"Москва"}]},
+      {"id": 26301561,"first_name": "Елена","last_name": "Романова", "city": "Фрязино", "friends":  [{"id":50929,"first_name":"Лилия","last_name":"Балибалова","city":"Фрязино"},{"id":87145,"first_name":"Алексей","last_name":"Иванов","city":"Королев"},{"id":96653,"first_name":"Римма","last_name":"Давидян","city":"Фрязино"},{"id":117726,"first_name":"Наталья","last_name":"Солосина","city":"Балашиха"},{"id":158729,"first_name":"Антон","last_name":"Ставицкий","city":"Фрязино"}]},
+      {"id": 35580136,"first_name": "Елена","last_name": "Потапова", "city": "Мытищи", "friends":  [{"id":448398,"first_name":"Татьяна","last_name":"Терентьева","city":"Мытищи"},{"id":1182425,"first_name":"Таня","last_name":"Rider","city":"Химки"},{"id":1362157,"first_name":"Anna","last_name":"Borodina","city":"Мытищи"},{"id":1431910,"first_name":"Елена","last_name":"Янковская","city":"Одинцово"},{"id":1632203,"first_name":"Олег","last_name":"Инка","city":"Мытищи"}]},
+      {"id": 48580853,"first_name": "Ольга","last_name": "Суворова", "city": "Щелково", "friends":  [{"id":1296260,"first_name":"Галина","last_name":"Бывшева","city":"Щелково"},{"id":1311084,"first_name":"Владимир","last_name":"Фёдоров","city":"Люберцы"},{"id":2104810,"first_name":"Ирина","last_name":"Лапан","city":"Щелково"},{"id":2254270,"first_name":"Антон","last_name":"Шилов","city":"Фрязино"},{"id":3267397,"first_name":"Влас","last_name":"Клименко","city":"Щелково"}]}
+    ]
+  }
+]

@@ -1,170 +1,112 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Датасет IP-адресов друзей ВКонтакте и анализ центральности сети
-Задача №2: Сбор информации о друзьях и друзьях друзей из ВК для членов группы
+Датасет друзей ВКонтакте и анализ центральности сети
+Задача №2: Анализ информации о друзьях и друзьях друзей из ВК для членов группы
 """
 
-import random
 import networkx as nx
-import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 from typing import Dict, List, Tuple
-import ipaddress
 import json
 
-class VKFriendsIPDataset:
-    """Класс для создания и анализа датасета IP-адресов друзей ВКонтакте"""
+class VKFriendsDataset:
+    """Класс для анализа датасета друзей ВКонтакте из databaseFriends.json"""
     
-    def __init__(self, group_size: int = 20):
+    def __init__(self, json_file: str = "databaseFriends.json"):
         """
         Инициализация датасета
         
         Args:
-            group_size: Размер группы (количество членов группы)
+            json_file: Путь к JSON файлу с данными
         """
-        self.group_size = group_size
+        self.json_file = json_file
         self.members = []
         self.friends_network = nx.Graph()
-        self.ip_mapping = {}
+        self.all_people = {}  # Словарь всех людей по id для быстрого доступа
         
-    def generate_realistic_ips(self, count: int) -> List[str]:
-        """Генерация реалистичных IP-адресов"""
-        ips = []
+    def load_dataset(self):
+        """Загрузка датасета из JSON файла"""
+        print(f"Загрузка датасета из {self.json_file}...")
         
-        # Популярные диапазоны IP для российских провайдеров
-        russian_ranges = [
-            "95.31.0.0/16",    # Ростелеком
-            "178.176.0.0/12",  # МТС
-            "85.143.0.0/16",   # Билайн  
-            "37.29.0.0/16",    # Мегафон
-            "46.39.0.0/16",    # TTK
-            "217.69.0.0/16",   # Corbina
-            "195.98.0.0/16",   # MGTS
-            "109.195.0.0/16",  # Дом.ру
-        ]
+        with open(self.json_file, 'r', encoding='utf-8') as f:
+            data = json.load(f)
         
-        for _ in range(count):
-            # Выбираем случайный диапазон
-            range_cidr = random.choice(russian_ranges)
-            network = ipaddress.IPv4Network(range_cidr, strict=False)
-            
-            # Генерируем случайный IP в этом диапазоне
-            random_int = random.randint(0, network.num_addresses - 1)
-            ip = str(network.network_address + random_int)
-            ips.append(ip)
-            
-        return ips
+        # Основные члены группы - это корневые объекты в массиве
+        self.members = data
+        
+        # Строим словарь всех людей для быстрого доступа
+        self._build_people_dict(data)
+        
+        print(f"Загружено {len(self.members)} членов группы")
     
-    def create_members_dataset(self):
-        """Создание датасета членов группы"""
-        print("Создание датасета членов группы...")
+    def _build_people_dict(self, data: List[Dict], visited: set = None):
+        """Рекурсивное построение словаря всех людей"""
+        if visited is None:
+            visited = set()
         
-        # Генерируем имена членов группы
-        first_names = ["Александр", "Дмитрий", "Максим", "Сергей", "Андрей", 
-                      "Алексей", "Артем", "Илья", "Кирилл", "Михаил",
-                      "Анна", "Мария", "Елена", "Ольга", "Татьяна",
-                      "Наталья", "Ирина", "Светлана", "Юлия", "Екатерина"]
-        
-        last_names = ["Иванов", "Петров", "Сидоров", "Козлов", "Волков",
-                     "Смирнов", "Кузнецов", "Попов", "Васильев", "Соколов",
-                     "Иванова", "Петрова", "Сидорова", "Козлова", "Волкова",
-                     "Смирнова", "Кузнецова", "Попова", "Васильева", "Соколова"]
-        
-        # Генерируем IP-адреса для членов группы
-        member_ips = self.generate_realistic_ips(self.group_size)
-        
-        for i in range(self.group_size):
-            member_id = f"member_{i+1}"
-            name = f"{random.choice(first_names)} {random.choice(last_names)}"
-            ip = member_ips[i]
+        for person in data:
+            person_id = str(person['id'])  # Преобразуем id в строку для единообразия
             
-            member_data = {
-                'id': member_id,
-                'name': name,
-                'ip': ip,
-                'vk_id': random.randint(100000000, 999999999),
-                'friends': [],
-                'friends_of_friends': []
-            }
-            
-            self.members.append(member_data)
-            self.ip_mapping[member_id] = ip
-            
-        print(f"Создано {len(self.members)} членов группы")
+            if person_id not in visited:
+                visited.add(person_id)
+                self.all_people[person_id] = {
+                    'id': person_id,
+                    'first_name': person.get('first_name', ''),
+                    'last_name': person.get('last_name', ''),
+                    'city': person.get('city', ''),
+                    'is_group_member': person_id in [str(m['id']) for m in self.members]
+                }
+                
+                # Рекурсивно обрабатываем друзей
+                if 'friends' in person and person['friends']:
+                    self._build_people_dict(person['friends'], visited)
     
-    def generate_friends_network(self):
-        """Генерация сети друзей"""
-        print("Генерация сети друзей...")
+    def build_friends_network(self):
+        """Построение сети друзей на основе данных из JSON"""
+        print("Построение сети друзей...")
         
-        # Добавляем узлы для членов группы
+        def add_person_to_network(person: Dict, is_group_member: bool = False):
+            """Рекурсивное добавление человека и его друзей в сеть"""
+            person_id = str(person['id'])
+            
+            # Добавляем узел, если его еще нет
+            if person_id not in self.friends_network:
+                self.friends_network.add_node(
+                    person_id,
+                    first_name=person.get('first_name', ''),
+                    last_name=person.get('last_name', ''),
+                    city=person.get('city', ''),
+                    node_type='group_member' if is_group_member else 'friend'
+                )
+            
+            # Добавляем связи с друзьями
+            if 'friends' in person and person['friends']:
+                for friend in person['friends']:
+                    friend_id = str(friend['id'])
+                    
+                    # Добавляем друга как узел
+                    if friend_id not in self.friends_network:
+                        self.friends_network.add_node(
+                            friend_id,
+                            first_name=friend.get('first_name', ''),
+                            last_name=friend.get('last_name', ''),
+                            city=friend.get('city', ''),
+                            node_type='friend'
+                        )
+                    
+                    # Добавляем связь (если еще нет)
+                    if not self.friends_network.has_edge(person_id, friend_id):
+                        self.friends_network.add_edge(person_id, friend_id)
+                    
+                    # Рекурсивно обрабатываем друзей друзей
+                    if 'friends' in friend and friend['friends']:
+                        add_person_to_network(friend, is_group_member=False)
+        
+        # Обрабатываем всех членов группы
         for member in self.members:
-            self.friends_network.add_node(member['id'], 
-                                        name=member['name'], 
-                                        ip=member['ip'],
-                                        node_type='group_member')
-        
-        # Создаем связи между членами группы (дружба внутри группы)
-        member_ids = [m['id'] for m in self.members]
-        
-        # Каждый член группы дружит с 3-7 другими членами группы
-        for member_id in member_ids:
-            num_friends_in_group = random.randint(3, min(7, len(member_ids)-1))
-            potential_friends = [mid for mid in member_ids if mid != member_id]
-            friends_in_group = random.sample(potential_friends, num_friends_in_group)
-            
-            for friend_id in friends_in_group:
-                if not self.friends_network.has_edge(member_id, friend_id):
-                    self.friends_network.add_edge(member_id, friend_id)
-        
-        # Генерируем внешних друзей для каждого члена группы
-        external_friend_counter = 1
-        
-        for member in self.members:
-            member_id = member['id']
-            
-            # Каждый член группы имеет 5-15 внешних друзей
-            num_external_friends = random.randint(5, 15)
-            external_friend_ips = self.generate_realistic_ips(num_external_friends)
-            
-            for i in range(num_external_friends):
-                friend_id = f"external_friend_{external_friend_counter}"
-                friend_ip = external_friend_ips[i]
-                friend_name = f"Друг_{external_friend_counter}"
-                friend_vk_id = random.randint(100000000, 999999999)
-                
-                # Добавляем внешнего друга в сеть
-                self.friends_network.add_node(friend_id,
-                                            name=friend_name,
-                                            ip=friend_ip,
-                                            vk_id=friend_vk_id,
-                                            node_type='external_friend')
-                
-                # Создаем связь с членом группы
-                self.friends_network.add_edge(member_id, friend_id)
-                
-                # Добавляем в список друзей члена группы
-                member['friends'].append({
-                    'id': friend_id,
-                    'name': friend_name,
-                    'ip': friend_ip,
-                    'vk_id': random.randint(100000000, 999999999)
-                })
-                
-                self.ip_mapping[friend_id] = friend_ip
-                external_friend_counter += 1
-        
-        # Создаем связи между внешними друзьями (друзья друзей)
-        external_friends = [n for n in self.friends_network.nodes() 
-                          if self.friends_network.nodes[n]['node_type'] == 'external_friend']
-        
-        # Случайные связи между внешними друзьями
-        num_external_connections = len(external_friends) // 3
-        for _ in range(num_external_connections):
-            friend1, friend2 = random.sample(external_friends, 2)
-            if not self.friends_network.has_edge(friend1, friend2):
-                self.friends_network.add_edge(friend1, friend2)
+            add_person_to_network(member, is_group_member=True)
         
         print(f"Создана сеть из {self.friends_network.number_of_nodes()} узлов и {self.friends_network.number_of_edges()} связей")
     
@@ -175,14 +117,14 @@ class VKFriendsIPDataset:
         subgraphs = {}
         
         # 1. Порожденный подграф только членов группы
-        group_member_ids = [m['id'] for m in self.members]
+        group_member_ids = [str(m['id']) for m in self.members]
         group_subgraph = self.friends_network.subgraph(group_member_ids).copy()
         subgraphs['group_only'] = group_subgraph
         print(f"  - Подграф членов группы: {group_subgraph.number_of_nodes()} узлов, {group_subgraph.number_of_edges()} связей")
         
         # 2. Порожденные подграфы для каждого члена группы и его друзей
         for member in self.members:
-            member_id = member['id']
+            member_id = str(member['id'])
             # Получаем всех соседей (друзей) данного члена группы
             neighbors = list(self.friends_network.neighbors(member_id))
             # Создаем подграф из члена группы и всех его друзей
@@ -304,24 +246,29 @@ class VKFriendsIPDataset:
         """Анализ центральности только для членов группы"""
         print("Анализ центральности членов группы...")
         
-        group_member_ids = [m['id'] for m in self.members]
+        group_member_ids = [str(m['id']) for m in self.members]
         
         analysis_data = []
-        for member_id in group_member_ids:
-            member_data = next(m for m in self.members if m['id'] == member_id)
+        for member in self.members:
+            member_id = str(member['id'])
             
             # Основные метрики из главного графа
             main_centrality = centrality_measures['main_graph']
+            
+            # Получаем количество друзей из графа
+            num_friends = len(list(self.friends_network.neighbors(member_id)))
+            
             row = {
                 'member_id': member_id,
-                'name': member_data['name'],
-                'ip': member_data['ip'],
-                'vk_id': member_data['vk_id'],
-                'betweenness_centrality': main_centrality['betweenness'][member_id],
-                'closeness_centrality': main_centrality['closeness'][member_id],
-                'eigenvector_centrality': main_centrality['eigenvector'][member_id],
-                'degree_centrality': main_centrality['degree'][member_id],
-                'num_friends': len(member_data['friends'])
+                'first_name': member.get('first_name', ''),
+                'last_name': member.get('last_name', ''),
+                'name': f"{member.get('first_name', '')} {member.get('last_name', '')}".strip(),
+                'city': member.get('city', ''),
+                'betweenness_centrality': main_centrality['betweenness'].get(member_id, 0),
+                'closeness_centrality': main_centrality['closeness'].get(member_id, 0),
+                'eigenvector_centrality': main_centrality['eigenvector'].get(member_id, 0),
+                'degree_centrality': main_centrality['degree'].get(member_id, 0),
+                'num_friends': num_friends
             }
             
             # Добавляем метрики из подграфа только членов группы
@@ -339,26 +286,26 @@ class VKFriendsIPDataset:
         # Сортируем по различным мерам центральности
         print("\n=== АНАЛИЗ ЦЕНТРАЛЬНОСТИ В ОСНОВНОМ ГРАФЕ ===")
         print("\nТоп-5 по центральности посредничества:")
-        top_betweenness = df.nlargest(5, 'betweenness_centrality')[['name', 'ip', 'vk_id', 'betweenness_centrality']]
+        top_betweenness = df.nlargest(5, 'betweenness_centrality')[['name', 'city', 'betweenness_centrality']]
         print(top_betweenness.to_string(index=False))
         
         print("\nТоп-5 по центральности близости:")
-        top_closeness = df.nlargest(5, 'closeness_centrality')[['name', 'ip', 'vk_id', 'closeness_centrality']]
+        top_closeness = df.nlargest(5, 'closeness_centrality')[['name', 'city', 'closeness_centrality']]
         print(top_closeness.to_string(index=False))
         
         print("\nТоп-5 по центральности собственного вектора:")
-        top_eigenvector = df.nlargest(5, 'eigenvector_centrality')[['name', 'ip', 'vk_id', 'eigenvector_centrality']]
+        top_eigenvector = df.nlargest(5, 'eigenvector_centrality')[['name', 'city', 'eigenvector_centrality']]
         print(top_eigenvector.to_string(index=False))
         
         # Анализ в подграфе группы (если доступен)
         if 'group_betweenness' in df.columns:
             print("\n=== АНАЛИЗ ЦЕНТРАЛЬНОСТИ В ПОДГРАФЕ ГРУППЫ ===")
             print("\nТоп-5 по центральности посредничества в группе:")
-            top_group_betweenness = df.nlargest(5, 'group_betweenness')[['name', 'ip', 'vk_id', 'group_betweenness']]
+            top_group_betweenness = df.nlargest(5, 'group_betweenness')[['name', 'city', 'group_betweenness']]
             print(top_group_betweenness.to_string(index=False))
             
             print("\nТоп-5 по центральности близости в группе:")
-            top_group_closeness = df.nlargest(5, 'group_closeness')[['name', 'ip', 'vk_id', 'group_closeness']]
+            top_group_closeness = df.nlargest(5, 'group_closeness')[['name', 'city', 'group_closeness']]
             print(top_group_closeness.to_string(index=False))
         
         return df
@@ -376,7 +323,7 @@ class VKFriendsIPDataset:
         group_members = [n for n in self.friends_network.nodes() 
                         if self.friends_network.nodes[n]['node_type'] == 'group_member']
         external_friends = [n for n in self.friends_network.nodes() 
-                          if self.friends_network.nodes[n]['node_type'] == 'external_friend']
+                          if self.friends_network.nodes[n]['node_type'] == 'friend']
         
         # Используем центральность из основного графа
         main_centrality = centrality_measures['main_graph']
@@ -384,51 +331,59 @@ class VKFriendsIPDataset:
         # Размеры узлов на основе центральности по посредничеству
         node_sizes = []
         for node in self.friends_network.nodes():
-            size = 300 + main_centrality['betweenness'][node] * 2000
+            size = 300 + main_centrality['betweenness'].get(node, 0) * 2000
             node_sizes.append(size)
         
         # Цвета узлов на основе центральности собственного вектора
         node_colors = []
         for node in self.friends_network.nodes():
-            color = main_centrality['eigenvector'][node]
+            color = main_centrality['eigenvector'].get(node, 0)
             node_colors.append(color)
         
         # Рисуем рёбра
-        nx.draw_networkx_edges(self.friends_network, pos, alpha=0.3, width=0.5, edge_color='gray')
+        nx.draw_networkx_edges(self.friends_network, pos, alpha=0.6, width=3.0, edge_color='gray')
         
         # Рисуем узлы членов группы
-        nx.draw_networkx_nodes(self.friends_network, pos, 
-                             nodelist=group_members,
-                             node_size=[node_sizes[i] for i, n in enumerate(self.friends_network.nodes()) if n in group_members],
-                             node_color=[node_colors[i] for i, n in enumerate(self.friends_network.nodes()) if n in group_members],
-                             cmap=plt.cm.Reds, alpha=0.8, edgecolors='black', linewidths=2)
+        if group_members:
+            group_sizes = [node_sizes[i] for i, n in enumerate(self.friends_network.nodes()) if n in group_members]
+            group_colors = [node_colors[i] for i, n in enumerate(self.friends_network.nodes()) if n in group_members]
+            nx.draw_networkx_nodes(self.friends_network, pos, 
+                                 nodelist=group_members,
+                                 node_size=group_sizes,
+                                 node_color=group_colors,
+                                 cmap=plt.cm.Reds, alpha=0.8, edgecolors='black', linewidths=2)
         
         # Рисуем узлы внешних друзей
-        nx.draw_networkx_nodes(self.friends_network, pos,
-                             nodelist=external_friends,
-                             node_size=[node_sizes[i] for i, n in enumerate(self.friends_network.nodes()) if n in external_friends],
-                             node_color=[node_colors[i] for i, n in enumerate(self.friends_network.nodes()) if n in external_friends],
-                             cmap=plt.cm.Blues, alpha=0.6)
+        if external_friends:
+            friend_sizes = [node_sizes[i] for i, n in enumerate(self.friends_network.nodes()) if n in external_friends]
+            # Используем фиксированный синий цвет для друзей, чтобы они были хорошо видны
+            nx.draw_networkx_nodes(self.friends_network, pos,
+                                 nodelist=external_friends,
+                                 node_size=friend_sizes,
+                                 node_color='steelblue',
+                                 alpha=0.8, edgecolors='darkblue', linewidths=1)
         
         # Добавляем подписи для членов группы
         group_labels = {}
         for node in group_members:
-            member_data = next(m for m in self.members if m['id'] == node)
-            group_labels[node] = member_data['name'].split()[0]  # Только имя
+            node_data = self.friends_network.nodes[node]
+            first_name = node_data.get('first_name', '')
+            group_labels[node] = first_name
         
         nx.draw_networkx_labels(self.friends_network, pos, group_labels, font_size=8)
         
         plt.title("Сеть друзей ВКонтакте\n" + 
-                 "Красные узлы - члены группы, синие - внешние друзья\n" +
+                 "Красные узлы - члены группы, синие - друзья\n" +
                  "Размер узла = центральность посредничества, цвет = центральность собственного вектора",
                  fontsize=14, pad=20)
         
         # Добавляем цветовую шкалу
-        sm = plt.cm.ScalarMappable(cmap=plt.cm.Reds, 
-                                  norm=plt.Normalize(vmin=min(node_colors), vmax=max(node_colors)))
-        sm.set_array([])
-        cbar = plt.colorbar(sm, ax=plt.gca())
-        cbar.set_label('Центральность собственного вектора', rotation=270, labelpad=15)
+        if node_colors:
+            sm = plt.cm.ScalarMappable(cmap=plt.cm.Reds, 
+                                      norm=plt.Normalize(vmin=min(node_colors), vmax=max(node_colors)))
+            sm.set_array([])
+            cbar = plt.colorbar(sm, ax=plt.gca())
+            cbar.set_label('Центральность собственного вектора', rotation=270, labelpad=15)
         
         plt.axis('off')
         plt.tight_layout()
@@ -444,9 +399,8 @@ class VKFriendsIPDataset:
             'network_stats': {
                 'total_nodes': self.friends_network.number_of_nodes(),
                 'total_edges': self.friends_network.number_of_edges(),
-                'group_size': self.group_size
-            },
-            'ip_mapping': self.ip_mapping
+                'group_size': len(self.members)
+            }
         }
         
         with open(filename, 'w', encoding='utf-8') as f:
@@ -460,11 +414,13 @@ def main():
     print("=== АНАЛИЗ СЕТИ ДРУЗЕЙ ВКОНТАКТЕ С МЕТОДОМ ПОРОЖДЕННОГО ГРАФА ===\n")
     
     # Создаем датасет
-    dataset = VKFriendsIPDataset(group_size=20)
+    dataset = VKFriendsDataset(json_file="databaseFriends.json")
     
-    # Генерируем данные
-    dataset.create_members_dataset()
-    dataset.generate_friends_network()
+    # Загружаем данные
+    dataset.load_dataset()
+    
+    # Строим сеть друзей
+    dataset.build_friends_network()
     
     # Создаем порожденные подграфы
     subgraphs = dataset.create_induced_subgraphs()
@@ -510,31 +466,31 @@ def main():
     print(f"\n=== ОБЩИЕ РЕЗУЛЬТАТЫ ===")
     print(f"Общее количество узлов в сети: {dataset.friends_network.number_of_nodes()}")
     print(f"Общее количество связей: {dataset.friends_network.number_of_edges()}")
-    print(f"Членов группы: {dataset.group_size}")
-    print(f"Внешних друзей: {dataset.friends_network.number_of_nodes() - dataset.group_size}")
+    print(f"Членов группы: {len(dataset.members)}")
+    print(f"Друзей: {dataset.friends_network.number_of_nodes() - len(dataset.members)}")
     print(f"Плотность основной сети: {nx.density(dataset.friends_network):.4f}")
     
     # Выводим самых центральных членов группы
     print(f"\n=== САМЫЕ ЦЕНТРАЛЬНЫЕ ЧЛЕНЫ ГРУППЫ В ОСНОВНОЙ СЕТИ ===")
     
     most_central_betweenness = analysis_df.loc[analysis_df['betweenness_centrality'].idxmax()]
-    print(f"Наивысшая центральность посредничества: {most_central_betweenness['name']} (VK ID: {most_central_betweenness['vk_id']}, IP: {most_central_betweenness['ip']}) - {most_central_betweenness['betweenness_centrality']:.4f}")
+    print(f"Наивысшая центральность посредничества: {most_central_betweenness['name']} (Город: {most_central_betweenness['city']}) - {most_central_betweenness['betweenness_centrality']:.4f}")
     
     most_central_closeness = analysis_df.loc[analysis_df['closeness_centrality'].idxmax()]
-    print(f"Наивысшая центральность близости: {most_central_closeness['name']} (VK ID: {most_central_closeness['vk_id']}, IP: {most_central_closeness['ip']}) - {most_central_closeness['closeness_centrality']:.4f}")
+    print(f"Наивысшая центральность близости: {most_central_closeness['name']} (Город: {most_central_closeness['city']}) - {most_central_closeness['closeness_centrality']:.4f}")
     
     most_central_eigenvector = analysis_df.loc[analysis_df['eigenvector_centrality'].idxmax()]
-    print(f"Наивысшая центральность собственного вектора: {most_central_eigenvector['name']} (VK ID: {most_central_eigenvector['vk_id']}, IP: {most_central_eigenvector['ip']}) - {most_central_eigenvector['eigenvector_centrality']:.4f}")
+    print(f"Наивысшая центральность собственного вектора: {most_central_eigenvector['name']} (Город: {most_central_eigenvector['city']}) - {most_central_eigenvector['eigenvector_centrality']:.4f}")
     
     # Анализ в подграфе группы
     if 'group_betweenness' in analysis_df.columns:
         print(f"\n=== САМЫЕ ЦЕНТРАЛЬНЫЕ ЧЛЕНЫ ВНУТРИ ГРУППЫ ===")
         
         most_central_group_betweenness = analysis_df.loc[analysis_df['group_betweenness'].idxmax()]
-        print(f"Наивысшая центральность посредничества в группе: {most_central_group_betweenness['name']} (VK ID: {most_central_group_betweenness['vk_id']}) - {most_central_group_betweenness['group_betweenness']:.4f}")
+        print(f"Наивысшая центральность посредничества в группе: {most_central_group_betweenness['name']} (Город: {most_central_group_betweenness['city']}) - {most_central_group_betweenness['group_betweenness']:.4f}")
         
         most_central_group_closeness = analysis_df.loc[analysis_df['group_closeness'].idxmax()]
-        print(f"Наивысшая центральность близости в группе: {most_central_group_closeness['name']} (VK ID: {most_central_group_closeness['vk_id']}) - {most_central_group_closeness['group_closeness']:.4f}")
+        print(f"Наивысшая центральность близости в группе: {most_central_group_closeness['name']} (Город: {most_central_group_closeness['city']}) - {most_central_group_closeness['group_closeness']:.4f}")
 
 if __name__ == "__main__":
     main()
