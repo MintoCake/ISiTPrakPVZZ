@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from typing import Dict, List, Tuple
 import json
+import random
 
 class VKFriendsDataset:
     """Класс для анализа датасета друзей ВКонтакте из databaseFriends.json"""
@@ -108,7 +109,127 @@ class VKFriendsDataset:
         for member in self.members:
             add_person_to_network(member, is_group_member=True)
         
+        # Добавляем связи между членами группы (5-10 общих связей)
+        self._add_group_member_connections()
+        
+        # Добавляем сложные связи через промежуточных друзей
+        self._add_complex_connections()
+        
         print(f"Создана сеть из {self.friends_network.number_of_nodes()} узлов и {self.friends_network.number_of_edges()} связей")
+    
+    def _add_group_member_connections(self):
+        """Добавление связей между членами группы (5-10 общих связей)"""
+        group_member_ids = [str(m['id']) for m in self.members]
+        
+        if len(group_member_ids) < 2:
+            return
+        
+        # Определяем количество связей (5-10)
+        num_connections = random.randint(5, 10)
+        
+        # Создаем список всех возможных пар
+        possible_pairs = []
+        for i in range(len(group_member_ids)):
+            for j in range(i + 1, len(group_member_ids)):
+                possible_pairs.append((group_member_ids[i], group_member_ids[j]))
+        
+        # Случайно выбираем пары для создания связей
+        # Убеждаемся, что не создаем дубликаты
+        connections_added = 0
+        used_pairs = set()
+        
+        while connections_added < num_connections and len(used_pairs) < len(possible_pairs):
+            pair = random.choice(possible_pairs)
+            
+            if pair not in used_pairs:
+                member1_id, member2_id = pair
+                
+                # Добавляем связь, если её еще нет
+                if not self.friends_network.has_edge(member1_id, member2_id):
+                    self.friends_network.add_edge(member1_id, member2_id)
+                    connections_added += 1
+                    used_pairs.add(pair)
+        
+        print(f"Добавлено {connections_added} связей между членами группы")
+    
+    def _add_complex_connections(self):
+        """Добавление сложных связей через промежуточных друзей для создания путей между основными пользователями"""
+        group_member_ids = [str(m['id']) for m in self.members]
+        
+        if len(group_member_ids) < 2:
+            return
+        
+        connections_added = 0
+        
+        # Получаем друзей каждого члена группы
+        member_friends = {}
+        for member_id in group_member_ids:
+            friends = list(self.friends_network.neighbors(member_id))
+            # Фильтруем только друзей (не членов группы)
+            friends = [f for f in friends if f not in group_member_ids]
+            member_friends[member_id] = friends
+        
+        # Создаем связи между друзьями разных членов группы
+        # Это создаст пути: основной_пользователь1 -> друг1 -> друг2 -> основной_пользователь2
+        for i, member1_id in enumerate(group_member_ids):
+            for member2_id in group_member_ids[i+1:]:
+                friends1 = member_friends.get(member1_id, [])
+                friends2 = member_friends.get(member2_id, [])
+                
+                if not friends1 or not friends2:
+                    continue
+                
+                # Создаем 1-3 связи между друзьями разных членов группы
+                num_connections = random.randint(1, 3)
+                for _ in range(num_connections):
+                    if friends1 and friends2:
+                        friend1 = random.choice(friends1)
+                        friend2 = random.choice(friends2)
+                        
+                        # Добавляем связь между друзьями, если её еще нет
+                        if not self.friends_network.has_edge(friend1, friend2):
+                            self.friends_network.add_edge(friend1, friend2)
+                            connections_added += 1
+        
+        # Создаем связи между друзьями друзей (друзьями второго уровня)
+        # Это создаст более длинные пути: основной_пользователь1 -> друг1 -> друг_друга1 -> друг_друга2 -> друг2 -> основной_пользователь2
+        friends_of_friends_connections = 0
+        
+        # Для каждого члена группы берем его друзей
+        for member_id in group_member_ids:
+            friends = member_friends.get(member_id, [])
+            
+            # Для каждого друга находим его друзей (друзья друзей)
+            for friend_id in friends:
+                if friend_id not in self.friends_network:
+                    continue
+                
+                friends_of_friend = list(self.friends_network.neighbors(friend_id))
+                # Исключаем самого члена группы и других членов группы
+                friends_of_friend = [f for f in friends_of_friend 
+                                   if f != member_id and f not in group_member_ids]
+                
+                # Создаем связи между друзьями друзей разных членов группы
+                for other_member_id in group_member_ids:
+                    if other_member_id == member_id:
+                        continue
+                    
+                    other_friends = member_friends.get(other_member_id, [])
+                    
+                    # Создаем 1-2 связи между друзьями друзей
+                    num_connections = random.randint(0, 2)
+                    for _ in range(num_connections):
+                        if friends_of_friend and other_friends:
+                            friend_of_friend = random.choice(friends_of_friend)
+                            other_friend = random.choice(other_friends)
+                            
+                            # Добавляем связь, если её еще нет
+                            if not self.friends_network.has_edge(friend_of_friend, other_friend):
+                                self.friends_network.add_edge(friend_of_friend, other_friend)
+                                friends_of_friends_connections += 1
+        
+        total_connections = connections_added + friends_of_friends_connections
+        print(f"Добавлено {total_connections} сложных связей через промежуточных друзей ({connections_added} между друзьями, {friends_of_friends_connections} между друзьями друзей)")
     
     def create_induced_subgraphs(self) -> Dict[str, nx.Graph]:
         """Создание порожденных подграфов для различных подмножеств узлов"""
@@ -347,18 +468,18 @@ class VKFriendsDataset:
         if group_members:
             group_sizes = [node_sizes[i] for i, n in enumerate(self.friends_network.nodes()) if n in group_members]
             group_colors = [node_colors[i] for i, n in enumerate(self.friends_network.nodes()) if n in group_members]
-            nx.draw_networkx_nodes(self.friends_network, pos, 
-                                 nodelist=group_members,
+        nx.draw_networkx_nodes(self.friends_network, pos, 
+                             nodelist=group_members,
                                  node_size=group_sizes,
                                  node_color=group_colors,
-                                 cmap=plt.cm.Reds, alpha=0.8, edgecolors='black', linewidths=2)
+                             cmap=plt.cm.Reds, alpha=0.8, edgecolors='black', linewidths=2)
         
         # Рисуем узлы внешних друзей
         if external_friends:
             friend_sizes = [node_sizes[i] for i, n in enumerate(self.friends_network.nodes()) if n in external_friends]
             # Используем фиксированный синий цвет для друзей, чтобы они были хорошо видны
-            nx.draw_networkx_nodes(self.friends_network, pos,
-                                 nodelist=external_friends,
+        nx.draw_networkx_nodes(self.friends_network, pos,
+                             nodelist=external_friends,
                                  node_size=friend_sizes,
                                  node_color='steelblue',
                                  alpha=0.8, edgecolors='darkblue', linewidths=1)
