@@ -9,10 +9,10 @@
 \
 Задачи для группы:
 - [X] Создать датасет самолётов
-- [ ] Найти 2 LLM на Huggingface
+- [X] Найти 2 LLM на Huggingface
 - [ ] Натренировать их
 - [ ] Оформить результаты
 \
 \
 LLM 1 - https://huggingface.co/nvidia/MambaVision-T-1K \
-LLM 2 - https://huggingface.co/cella110n/cl_tagger \
+LLM 2 - https://huggingface.co/cella110n/cl_tagger
